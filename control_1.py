@@ -1,37 +1,70 @@
-import os
-from datetime import datetime
+import flet as ft
 
-def load_history():
-    if os.path.exists("history.txt"):
-        with open("history.txt", "r", encoding="utf-8") as f:
-            return [line.strip() for line in f.readlines()][-5:]
-    return []
+def app(page: ft.Page):
+    page.title = "Изобранные"
 
-def save_history(data):
-    with open("history.txt", "w", encoding="utf-8") as f:
-        for item in data:
-            f.write(item + "\n")
+    favorites = []
+    last_name = ""
 
-history = load_history()
+    plain_text = ft.Text(value="Hello ")
+    favorites_text = ft.Text(value="Избранные:")
 
-while True:
-    print("\n-ИСТОРИЯ (последние 5) -")
-    for entry in history: print(entry)
-    if not history: print("[пусто]")
+    def change(e):
+        nonlocal last_name
+        txt = user_input.value.strip()
+        user_input.value = ""
 
-    name = input("\nИмя (0 - очистить, выход - закрыть): ").strip()
+        if txt:
+            last_name = txt
+            plain_text.value = f"Hello, {last_name}!"
+            page.update()
 
-    if name == "0":
-        if os.path.exists("history.txt"): os.remove("history.txt")
-        history = []
-        print(">>> Очищено!")
-        continue  
+    def add_to_favorites(e):
+        txt = user_input.value.strip()
 
-    if name.lower() == "выход":
-        break
+        if txt and txt not in favorites:
+            favorites.append(txt)
+            favorites_text.value = "Избранные:\n" + "\n".join(favorites)
+            user_input.value = ""
+            page.update()
 
-    if name:
-        entry = f"[{datetime.now().strftime('%H:%M')}] Привет, {name}!"
-        history.append(entry)
-        history = history[-5:]
-        save_history(history)
+    user_input = ft.TextField(label="Enter name", on_submit=change)
+    btn = ft.TextButton("Отправить", on_click=change)
+    fav_button = ft.TextButton("Добавить в избранные", on_click=add_to_favorites)
+
+    page.add(plain_text, user_input, btn, fav_button, favorites_text)
+
+ft.app(app)
+
+
+#2 misson
+
+import flet as ft
+
+def app(page: ft.Page):
+    plain_text = ft.Text(value="Hello world!")
+    history = []
+
+    def clear_history(e):
+        history.clear()
+        history_text.value = ""
+
+    history_text = ft.Text()
+
+
+    def change(e):
+        txt = user_input.value.strip()
+        user_input.value = ""
+        history.append(txt)
+        print(history)
+        history_text.value = "История имён: \n" + ", \n".join(history)
+        page.update()
+
+
+    btn = ft.TextButton("Отправить", on_click=change)
+    user_input = ft.TextField(label="Enter name", on_submit=change)
+
+    page.add(plain_text, user_input, btn, history_text)
+
+
+ft.app(app)
